@@ -3,31 +3,38 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+      - main  # Change to your branch name if different
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4  # Updated to latest version
+        uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4  # Updated to latest version
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-      - name: Build Project (Optional)
-        run: echo "No build step required"
+      - name: Install dependencies
+        run: npm install  # Skip if not using Node.js
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4  # Updated version
+      - name: Build project
+        run: npm run build  # Change based on your project (e.g., `jekyll build`, `hugo`)
+
+      # 🚀 **NEW: DELETE OLD ARTIFACTS**
+      - name: Delete Old Artifacts
+        uses: geekyeggo/delete-artifact@v2
         with:
           name: github-pages
-          path: .  # Ensure this points to your HTML files
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build  # Change this to your build output directory
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4  # Updated to latest version
+        id: deployment
+        uses: actions/deploy-pages@v4
